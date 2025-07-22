@@ -43,13 +43,13 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.factory<_i895.Connectivity>(() => connectivityModule.connectivity());
-    gh.factory<_i361.Dio>(() => networkModule.dio());
+    gh.factory<_i361.Dio>(() => networkModule.dio(gh<_i170.DotEnv>()));
+    gh.factory<_i212.NetworkInfoService>(
+      () => _i212.NetworkInfoService(gh<_i895.Connectivity>()),
+    );
     gh.factory<_i527.HttpService>(() => _i527.HttpService(gh<_i361.Dio>()));
     gh.factory<_i1072.ITodoRepository>(
       () => _i655.TodoRepository(gh<_i527.HttpService>()),
-    );
-    gh.factory<_i212.NetworkInfoService>(
-      () => _i212.NetworkInfoService(gh<_i895.Connectivity>()),
     );
     gh.factory<_i796.DeleteTodoUseCase>(
       () => _i796.DeleteTodoUseCase(gh<_i1072.ITodoRepository>()),

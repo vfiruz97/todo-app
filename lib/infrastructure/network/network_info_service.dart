@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class NetworkInfoService {
-  NetworkInfoService(this._connectivity);
+  const NetworkInfoService(this._connectivity);
 
   final Connectivity _connectivity;
 

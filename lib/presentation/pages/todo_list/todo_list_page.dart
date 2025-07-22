@@ -71,7 +71,7 @@ class _TodoListPageState extends State<TodoListPage> with TickerProviderStateMix
                             return TodoListItem(
                               todo: todos[index],
                               onTap: () => context.push('/todo/${todos[index].id}'),
-                              onDelete: () => context.read<TodoListCubit>().deleteTodo(todos[index].id!),
+                              onDelete: () => context.read<TodoListCubit>().delete(todos[index].id!),
                             );
                           },
                         ),

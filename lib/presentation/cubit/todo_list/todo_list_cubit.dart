@@ -26,13 +26,15 @@ class TodoListCubit extends Cubit<TodoListState> {
     );
   }
 
-  Future<void> deleteTodo(int id) async {
+  Future<void> delete(int id) async {
     if (state is TodoListLoading) return;
-
     emit(const TodoListState.loading());
 
     final result = await _deleteTodoUseCase(id);
 
-    result.fold((failure) => emit(TodoListState.error(failure.toString())), (_) => loadTodos());
+    result.fold((failure) => emit(TodoListState.error(failure.toString())), (_) {
+      emit(const TodoListState.initial());
+      return loadTodos();
+    });
   }
 }
