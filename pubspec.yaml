@@ -9,35 +9,38 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
-  flutter_bloc: ^8.1.6
-  bloc: ^8.1.4
-  dio: ^5.4.3+1
-  dio_smart_retry: ^6.0.0
-  grpc: ^4.1.0
-  freezed_annotation: ^2.4.4
-  json_annotation: ^4.9.0
-  go_router: ^14.6.2
-  get_it: ^8.0.2
-  injectable: ^2.5.0
-  connectivity_plus: ^6.1.0
-  flutter_dotenv: ^5.2.1
-  dartz: ^0.10.1
-  formz: ^0.7.0
+  cupertino_icons: 1.0.8
+  flutter_bloc: 9.1.1
+  bloc: 9.0.0
+  dio: 5.8.0+1
+  dio_smart_retry: 7.0.1
+  freezed_annotation: 2.4.4
+  json_annotation: 4.9.0
+  go_router: 16.0.0
+  get_it: 8.0.3
+  injectable: 2.5.0
+  connectivity_plus: 6.1.4
+  flutter_dotenv: 5.2.1
+  dartz: 0.10.1
+  formz: 0.8.0
   todo_proto:
     path: ./todo_proto
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
-  build_runner: ^2.4.13
-  freezed: ^2.5.8
-  json_serializable: ^6.8.0
-  injectable_generator: ^2.6.2
+  flutter_lints: 6.0.0
+  build_runner: 2.5.4
+  freezed: 2.5.8
+  json_serializable: 6.9.5
+  injectable_generator: 2.7.0
 
 flutter:
   uses-material-design: true
-  
   assets:
     - .env
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"

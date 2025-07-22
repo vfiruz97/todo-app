@@ -12,6 +12,7 @@ class TodoFormState with _$TodoFormState {
     @Default(TitleInput.pure()) TitleInput title,
     @Default(DescriptionInput.pure()) DescriptionInput description,
     @Default(FormzSubmissionStatus.initial) FormzSubmissionStatus status,
+    @Default(false) bool isValid,
     Todo? todo,
     String? errorMessage,
   }) = _TodoFormState;

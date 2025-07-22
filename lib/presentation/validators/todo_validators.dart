@@ -1,6 +1,6 @@
 import 'package:formz/formz.dart';
 
-enum TitleValidationError { empty, tooShort }
+enum TitleValidationError { empty, tooShort, tooLong }
 
 class TitleInput extends FormzInput<String, TitleValidationError> {
   const TitleInput.pure() : super.pure('');
@@ -10,6 +10,7 @@ class TitleInput extends FormzInput<String, TitleValidationError> {
   TitleValidationError? validator(String value) {
     if (value.isEmpty) return TitleValidationError.empty;
     if (value.length < 3) return TitleValidationError.tooShort;
+    if (value.length > 200) return TitleValidationError.tooLong;
     return null;
   }
 }

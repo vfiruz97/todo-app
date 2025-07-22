@@ -17,28 +17,28 @@ class TodoFormCubit extends Cubit<TodoFormState> {
 
   void initializeForm(Todo? todo) {
     if (todo != null) {
-      emit(
-        state.copyWith(
-          todo: todo,
-          title: TitleInput.dirty(todo.title),
-          description: DescriptionInput.dirty(todo.description),
-        ),
-      );
+      final titleInput = TitleInput.dirty(todo.title);
+      final descriptionInput = DescriptionInput.dirty(todo.description);
+      final isValid = Formz.validate([titleInput, descriptionInput]);
+
+      emit(state.copyWith(todo: todo, title: titleInput, description: descriptionInput, isValid: isValid));
     }
   }
 
   void titleChanged(String value) {
     final title = TitleInput.dirty(value);
-    emit(state.copyWith(title: title, status: Formz.validate([title, state.description])));
+    final isValid = Formz.validate([title, state.description]);
+    emit(state.copyWith(title: title, isValid: isValid));
   }
 
   void descriptionChanged(String value) {
     final description = DescriptionInput.dirty(value);
-    emit(state.copyWith(description: description, status: Formz.validate([state.title, description])));
+    final isValid = Formz.validate([state.title, description]);
+    emit(state.copyWith(description: description, isValid: isValid));
   }
 
   Future<void> submitForm() async {
-    if (!state.status.isValidated) return;
+    if (!state.isValid) return;
 
     emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
 

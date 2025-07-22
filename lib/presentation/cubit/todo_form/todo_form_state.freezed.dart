@@ -20,6 +20,7 @@ mixin _$TodoFormState {
   TitleInput get title => throw _privateConstructorUsedError;
   DescriptionInput get description => throw _privateConstructorUsedError;
   FormzSubmissionStatus get status => throw _privateConstructorUsedError;
+  bool get isValid => throw _privateConstructorUsedError;
   Todo? get todo => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
@@ -41,6 +42,7 @@ abstract class $TodoFormStateCopyWith<$Res> {
     TitleInput title,
     DescriptionInput description,
     FormzSubmissionStatus status,
+    bool isValid,
     Todo? todo,
     String? errorMessage,
   });
@@ -66,6 +68,7 @@ class _$TodoFormStateCopyWithImpl<$Res, $Val extends TodoFormState>
     Object? title = null,
     Object? description = null,
     Object? status = null,
+    Object? isValid = null,
     Object? todo = freezed,
     Object? errorMessage = freezed,
   }) {
@@ -83,6 +86,10 @@ class _$TodoFormStateCopyWithImpl<$Res, $Val extends TodoFormState>
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
                       as FormzSubmissionStatus,
+            isValid: null == isValid
+                ? _value.isValid
+                : isValid // ignore: cast_nullable_to_non_nullable
+                      as bool,
             todo: freezed == todo
                 ? _value.todo
                 : todo // ignore: cast_nullable_to_non_nullable
@@ -124,6 +131,7 @@ abstract class _$$TodoFormStateImplCopyWith<$Res>
     TitleInput title,
     DescriptionInput description,
     FormzSubmissionStatus status,
+    bool isValid,
     Todo? todo,
     String? errorMessage,
   });
@@ -149,6 +157,7 @@ class __$$TodoFormStateImplCopyWithImpl<$Res>
     Object? title = null,
     Object? description = null,
     Object? status = null,
+    Object? isValid = null,
     Object? todo = freezed,
     Object? errorMessage = freezed,
   }) {
@@ -166,6 +175,10 @@ class __$$TodoFormStateImplCopyWithImpl<$Res>
             ? _value.status
             : status // ignore: cast_nullable_to_non_nullable
                   as FormzSubmissionStatus,
+        isValid: null == isValid
+            ? _value.isValid
+            : isValid // ignore: cast_nullable_to_non_nullable
+                  as bool,
         todo: freezed == todo
             ? _value.todo
             : todo // ignore: cast_nullable_to_non_nullable
@@ -186,6 +199,7 @@ class _$TodoFormStateImpl implements _TodoFormState {
     this.title = const TitleInput.pure(),
     this.description = const DescriptionInput.pure(),
     this.status = FormzSubmissionStatus.initial,
+    this.isValid = false,
     this.todo,
     this.errorMessage,
   });
@@ -200,13 +214,16 @@ class _$TodoFormStateImpl implements _TodoFormState {
   @JsonKey()
   final FormzSubmissionStatus status;
   @override
+  @JsonKey()
+  final bool isValid;
+  @override
   final Todo? todo;
   @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'TodoFormState(title: $title, description: $description, status: $status, todo: $todo, errorMessage: $errorMessage)';
+    return 'TodoFormState(title: $title, description: $description, status: $status, isValid: $isValid, todo: $todo, errorMessage: $errorMessage)';
   }
 
   @override
@@ -218,14 +235,22 @@ class _$TodoFormStateImpl implements _TodoFormState {
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.status, status) || other.status == status) &&
+            (identical(other.isValid, isValid) || other.isValid == isValid) &&
             (identical(other.todo, todo) || other.todo == todo) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, title, description, status, todo, errorMessage);
+  int get hashCode => Object.hash(
+    runtimeType,
+    title,
+    description,
+    status,
+    isValid,
+    todo,
+    errorMessage,
+  );
 
   /// Create a copy of TodoFormState
   /// with the given fields replaced by the non-null parameter values.
@@ -241,6 +266,7 @@ abstract class _TodoFormState implements TodoFormState {
     final TitleInput title,
     final DescriptionInput description,
     final FormzSubmissionStatus status,
+    final bool isValid,
     final Todo? todo,
     final String? errorMessage,
   }) = _$TodoFormStateImpl;
@@ -251,6 +277,8 @@ abstract class _TodoFormState implements TodoFormState {
   DescriptionInput get description;
   @override
   FormzSubmissionStatus get status;
+  @override
+  bool get isValid;
   @override
   Todo? get todo;
   @override
