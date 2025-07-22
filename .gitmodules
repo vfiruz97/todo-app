@@ -1,0 +1,3 @@
+[submodule "todo_proto"]
+	path = todo_proto
+	url = https://github.com/vfiruz97/todo_proto
