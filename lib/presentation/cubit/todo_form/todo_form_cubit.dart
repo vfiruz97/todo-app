@@ -8,21 +8,20 @@ import '../../../domain/usecases/update_todo_usecase.dart';
 import '../../validators/todo_validators.dart';
 import 'todo_form_state.dart';
 
-@injectable
+@singleton
 class TodoFormCubit extends Cubit<TodoFormState> {
+  TodoFormCubit(this._createTodoUseCase, this._updateTodoUseCase) : super(const TodoFormState());
+
   final CreateTodoUseCase _createTodoUseCase;
   final UpdateTodoUseCase _updateTodoUseCase;
 
-  TodoFormCubit(this._createTodoUseCase, this._updateTodoUseCase) : super(const TodoFormState());
-
   void initializeForm(Todo? todo) {
-    if (todo != null) {
-      final titleInput = TitleInput.dirty(todo.title);
-      final descriptionInput = DescriptionInput.dirty(todo.description);
-      final isValid = Formz.validate([titleInput, descriptionInput]);
+    if (todo == null) return;
+    final titleInput = TitleInput.dirty(todo.title);
+    final descriptionInput = DescriptionInput.dirty(todo.description);
+    final isValid = Formz.validate([titleInput, descriptionInput]);
 
-      emit(state.copyWith(todo: todo, title: titleInput, description: descriptionInput, isValid: isValid));
-    }
+    emit(state.copyWith(todo: todo, title: titleInput, description: descriptionInput, isValid: isValid));
   }
 
   void titleChanged(String value) {
@@ -38,6 +37,7 @@ class TodoFormCubit extends Cubit<TodoFormState> {
   }
 
   Future<void> submitForm() async {
+    if (state.status == FormzSubmissionStatus.inProgress) return;
     if (!state.isValid) return;
 
     emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
@@ -45,11 +45,7 @@ class TodoFormCubit extends Cubit<TodoFormState> {
     final result = state.todo == null
         ? await _createTodoUseCase(state.title.value, state.description.value)
         : await _updateTodoUseCase(
-            state.todo!.copyWith(
-              title: state.title.value,
-              description: state.description.value,
-              updatedAt: DateTime.now(),
-            ),
+            state.todo!.copyWith(title: state.title.value, description: state.description.value),
           );
 
     result.fold(

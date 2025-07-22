@@ -63,7 +63,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1064.CreateTodoUseCase>(
       () => _i1064.CreateTodoUseCase(gh<_i1072.ITodoRepository>()),
     );
-    gh.factory<_i192.TodoListCubit>(
+    gh.singleton<_i192.TodoListCubit>(
       () => _i192.TodoListCubit(
         gh<_i604.GetAllTodosUseCase>(),
         gh<_i796.DeleteTodoUseCase>(),

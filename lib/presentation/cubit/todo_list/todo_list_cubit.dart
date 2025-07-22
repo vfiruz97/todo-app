@@ -5,7 +5,7 @@ import '../../../domain/usecases/delete_todo_usecase.dart';
 import '../../../domain/usecases/get_all_todos_usecase.dart';
 import 'todo_list_state.dart';
 
-@injectable
+@singleton
 class TodoListCubit extends Cubit<TodoListState> {
   TodoListCubit(this._getAllTodosUseCase, this._deleteTodoUseCase) : super(const TodoListState.initial());
 

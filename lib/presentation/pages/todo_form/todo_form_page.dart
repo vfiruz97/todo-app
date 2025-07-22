@@ -7,6 +7,7 @@ import '../../../domain/entities/todo.dart';
 import '../../../injection.dart';
 import '../../cubit/todo_form/todo_form_cubit.dart';
 import '../../cubit/todo_form/todo_form_state.dart';
+import '../../cubit/todo_list/todo_list_cubit.dart';
 
 class TodoFormPage extends StatefulWidget {
   final Todo? todo;
@@ -18,8 +19,9 @@ class TodoFormPage extends StatefulWidget {
 }
 
 class _TodoFormPageState extends State<TodoFormPage> with TickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<Offset> _slideAnimation;
+  late final AnimationController _animationController;
+  late final Animation<Offset> _slideAnimation;
+  late final TodoFormCubit _todoFormCubit;
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
 
@@ -33,9 +35,12 @@ class _TodoFormPageState extends State<TodoFormPage> with TickerProviderStateMix
     ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
     _animationController.forward();
 
+    _todoFormCubit = getIt<TodoFormCubit>();
+
     if (widget.todo != null) {
       _titleController.text = widget.todo!.title;
       _descriptionController.text = widget.todo!.description;
+      _todoFormCubit.initializeForm(widget.todo);
     }
   }
 
@@ -50,7 +55,7 @@ class _TodoFormPageState extends State<TodoFormPage> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<TodoFormCubit>()..initializeForm(widget.todo),
+      create: (context) => _todoFormCubit,
       child: Scaffold(
         appBar: AppBar(title: Text(widget.todo == null ? 'Create Todo' : 'Edit Todo')),
         body: SlideTransition(
@@ -64,6 +69,7 @@ class _TodoFormPageState extends State<TodoFormPage> with TickerProviderStateMix
                     backgroundColor: Colors.green,
                   ),
                 );
+                getIt<TodoListCubit>().loadTodos();
                 context.pop();
               } else if (state.status.isFailure) {
                 ScaffoldMessenger.of(context).showSnackBar(
