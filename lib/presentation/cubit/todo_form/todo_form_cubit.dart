@@ -5,33 +5,19 @@ import 'package:formz/formz.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../application/services/todo_service.dart';
-import '../../../domain/core/events/domain_event.dart';
-import '../../../domain/entities/events/todo_events.dart';
 import '../../../domain/entities/todo.dart';
-import '../../../infrastructure/core/event_bus.dart';
 import '../../validators/todo_validators.dart';
 import 'todo_form_state.dart';
 
 @injectable
 class TodoFormCubit extends Cubit<TodoFormState> {
-  TodoFormCubit(this._todoService, this._eventBus) : super(const TodoFormState()) {
-    _initEventListener();
-  }
+  TodoFormCubit(this._todoService) : super(const TodoFormState());
 
   final TodoService _todoService;
-  final EventBus _eventBus;
-  StreamSubscription<DomainEvent>? _eventSubscription;
-
-  void _initEventListener() {
-    _eventSubscription = _eventBus.events.listen((event) {
-      if (event is TodoUpdatedEvent && state.todo?.id == event.todo.id) {
-        updateTodoInState(event.todo);
-      }
-    });
-  }
 
   /// Loads a todo by its ID and updates the form state
   Future<void> loadTodo(int id) async {
+    if (state.status == FormzSubmissionStatus.inProgress) return;
     emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
 
     final result = await _todoService.getById(id);
@@ -56,8 +42,8 @@ class TodoFormCubit extends Cubit<TodoFormState> {
     );
   }
 
-  /// Toggles the completion status of the current todo
   Future<void> toggleCompletion() async {
+    if (state.status == FormzSubmissionStatus.inProgress) return;
     if (state.todo == null) return;
 
     final updatedTodo = state.todo!.copyWith(isCompleted: !state.todo!.isCompleted);
@@ -118,11 +104,5 @@ class TodoFormCubit extends Cubit<TodoFormState> {
       (failure) => emit(state.copyWith(status: FormzSubmissionStatus.failure, errorMessage: failure.toString())),
       (_) => emit(state.copyWith(status: FormzSubmissionStatus.success)),
     );
-  }
-
-  @override
-  Future<void> close() async {
-    await _eventSubscription?.cancel();
-    return super.close();
   }
 }

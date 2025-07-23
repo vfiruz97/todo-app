@@ -30,6 +30,7 @@ class DioFactory {
 
   Dio get dio {
     _dio = _createDio(_lastBaseUrl);
+    print('Created Dio instance with hash: ${dio.hashCode}');
     return _dio!;
   }
 
