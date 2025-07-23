@@ -58,9 +58,7 @@ class TodoListCubit extends Cubit<TodoListState> {
   }
 
   void _handleTodoDeleted(int todoId) {
-    final currentTodos = (state as TodoListLoaded).todos;
-    final updatedTodos = currentTodos.where((todo) => todo.id != todoId).toList();
-    emit(TodoListState.loaded(updatedTodos));
+    loadTodos();
   }
 
   /// Refreshes the todo list
@@ -86,10 +84,7 @@ class TodoListCubit extends Cubit<TodoListState> {
 
     final result = await _todoService.delete(id);
 
-    result.fold((failure) => emit(TodoListState.error(failure.toString())), (_) {
-      emit(const TodoListState.initial());
-      return loadTodos();
-    });
+    result.fold((failure) => emit(TodoListState.error(failure.toString())), (_) => emit(const TodoListState.initial()));
   }
 
   /// Returns whether the network is available
