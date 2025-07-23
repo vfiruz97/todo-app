@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../domain/core/events/domain_event.dart';
 import '../../domain/entities/events/settings_event.dart';
+import '../config/config.dart';
 import '../core/event_bus.dart';
 import 'interceptors/interceptors.dart';
 import 'network_info_service.dart';
@@ -14,8 +14,8 @@ import 'network_info_service.dart';
 @module
 abstract class NetworkModule {
   @singleton
-  DioFactory dioFactory(DotEnv dotenv, EventBus eventBus, NetworkInfoService networkInfo) {
-    return DioFactory(dotenv, eventBus, networkInfo);
+  DioFactory dioFactory(Config config, EventBus eventBus, NetworkInfoService networkInfo) {
+    return DioFactory(config, eventBus, networkInfo);
   }
 
   @injectable
@@ -23,12 +23,12 @@ abstract class NetworkModule {
 }
 
 class DioFactory {
-  DioFactory(this._dotenv, this._eventBus, this._networkInfo) {
-    _lastBaseUrl = _dotenv.env['BASE_URL']!;
+  DioFactory(this._config, this._eventBus, this._networkInfo) {
+    _lastBaseUrl = _config.baseUrl;
     _handleBaseUrlChange();
   }
 
-  final DotEnv _dotenv;
+  final Config _config;
   final NetworkInfoService _networkInfo;
   final EventBus _eventBus;
   StreamSubscription<DomainEvent>? _eventSubscription;
@@ -60,9 +60,7 @@ class DioFactory {
     dio.options.responseType = ResponseType.bytes;
 
     dio.interceptors.add(ConnectivityInterceptor(_networkInfo));
-    dio.interceptors.add(
-      RetryInterceptor(dio: dio, retries: int.parse(_dotenv.env['RETRY_ATTEMPTS'] ?? '3'), logPrint: print),
-    );
+    dio.interceptors.add(RetryInterceptor(dio: dio, retries: _config.retryAttempts, logPrint: print));
     dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true, logPrint: print));
 
     return dio;

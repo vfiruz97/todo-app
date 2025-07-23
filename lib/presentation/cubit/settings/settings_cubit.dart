@@ -1,23 +1,23 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../domain/entities/events/settings_event.dart';
 import '../../../domain/entities/settings.dart';
+import '../../../infrastructure/config/config.dart';
 import '../../../infrastructure/core/event_bus.dart';
 import 'settings_state.dart';
 
 @singleton
 class SettingsCubit extends Cubit<SettingsState> {
-  SettingsCubit(this._dotenv, this._eventBus) : super(const SettingsState()) {
+  SettingsCubit(this._config, this._eventBus) : super(const SettingsState()) {
     _loadBaseUrl();
   }
 
-  final DotEnv _dotenv;
+  final Config _config;
   final EventBus _eventBus;
 
   void _loadBaseUrl() {
-    final baseUrl = _dotenv.env['BASE_URL'] ?? 'http://localhost:8080/api/v1';
+    final baseUrl = _config.baseUrl;
     emit(state.copyWith(baseUrl: baseUrl));
   }
 
@@ -27,7 +27,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   void resetToDefault() {
-    final defaultUrl = _dotenv.env['BASE_URL'] ?? 'http://localhost:8080/api/v1';
+    final defaultUrl = _config.baseUrl;
     emit(state.copyWith(baseUrl: defaultUrl));
     _eventBus.emit(SettingsUpdateEvent(Settings(baseUrl: defaultUrl)));
   }
