@@ -61,10 +61,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i212.NetworkInfoService>(
       () => _i212.NetworkInfoService(gh<_i895.Connectivity>()),
     );
-    gh.factory<_i361.Dio>(
-      () =>
-          networkModule.dio(gh<_i170.DotEnv>(), gh<_i212.NetworkInfoService>()),
+    gh.singleton<_i343.DioFactory>(
+      () => networkModule.dioFactory(
+        gh<_i170.DotEnv>(),
+        gh<_i212.NetworkInfoService>(),
+        gh<_i848.SettingsService>(),
+      ),
     );
+    gh.factory<_i361.Dio>(() => networkModule.dio(gh<_i343.DioFactory>()));
     gh.factory<_i527.HttpService>(() => _i527.HttpService(gh<_i361.Dio>()));
     gh.factory<_i1072.ITodoRepository>(
       () => _i655.TodoRepository(

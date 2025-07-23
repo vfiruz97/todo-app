@@ -8,7 +8,7 @@ class SettingsService {
   final SharedPreferences _prefs;
 
   static const String _serverUrlKey = 'server_url';
-  static const String _defaultServerUrl = 'http://localhost:8080';
+  static const String _defaultServerUrl = 'http://localhost:8080/api/v1';
 
   String get serverUrl => _prefs.getString(_serverUrlKey) ?? _defaultServerUrl;
 

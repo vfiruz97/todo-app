@@ -6,8 +6,27 @@ import '../../../injection.dart';
 import '../../cubit/settings/settings_cubit.dart';
 import '../../cubit/settings/settings_state.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  late final TextEditingController _serverUrlController;
+
+  @override
+  void initState() {
+    super.initState();
+    _serverUrlController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _serverUrlController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +34,12 @@ class SettingsPage extends StatelessWidget {
       create: (context) => SettingsCubit(getIt<SettingsService>()),
       child: Scaffold(
         appBar: AppBar(title: const Text('Settings')),
-        body: BlocBuilder<SettingsCubit, SettingsState>(
+        body: BlocConsumer<SettingsCubit, SettingsState>(
+          listener: (context, state) {
+            if (_serverUrlController.text != state.serverUrl) {
+              _serverUrlController.text = state.serverUrl;
+            }
+          },
           builder: (context, state) {
             return ListView(
               padding: const EdgeInsets.all(16),
@@ -30,7 +54,7 @@ class SettingsPage extends StatelessWidget {
                         Text('Server Configuration', style: Theme.of(context).textTheme.titleLarge),
                         const SizedBox(height: 16),
                         TextFormField(
-                          controller: TextEditingController(text: state.serverUrl),
+                          controller: _serverUrlController,
                           decoration: const InputDecoration(
                             labelText: 'Server URL',
                             hintText: 'http://localhost:8080',
