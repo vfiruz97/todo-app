@@ -13,6 +13,7 @@ class TodoFormCubit extends Cubit<TodoFormState> {
 
   final TodoService _todoService;
 
+  /// Loads a todo by its ID and updates the form state
   Future<void> loadTodo(int id) async {
     emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
 
@@ -38,6 +39,7 @@ class TodoFormCubit extends Cubit<TodoFormState> {
     );
   }
 
+  /// Toggles the completion status of the current todo
   Future<void> toggleCompletion() async {
     if (state.todo == null) return;
 
@@ -53,12 +55,14 @@ class TodoFormCubit extends Cubit<TodoFormState> {
     );
   }
 
+  /// Updates the todo in the state if it matches the ID
   void updateTodoInState(Todo updatedTodo) {
     if (state.todo?.id == updatedTodo.id) {
       emit(state.copyWith(todo: updatedTodo));
     }
   }
 
+  /// Initializes the form with an existing todo
   void initializeForm(Todo? todo) {
     if (todo == null) return;
     final titleInput = TitleInput.dirty(todo.title);
@@ -68,18 +72,21 @@ class TodoFormCubit extends Cubit<TodoFormState> {
     emit(state.copyWith(todo: todo, title: titleInput, description: descriptionInput, isValid: isValid));
   }
 
+  /// Updates the title in the form state
   void titleChanged(String value) {
     final title = TitleInput.dirty(value);
     final isValid = Formz.validate([title, state.description]);
     emit(state.copyWith(title: title, isValid: isValid));
   }
 
+  /// Updates the description in the form state
   void descriptionChanged(String value) {
     final description = DescriptionInput.dirty(value);
     final isValid = Formz.validate([state.title, description]);
     emit(state.copyWith(description: description, isValid: isValid));
   }
 
+  /// Submits the form to create or update a todo
   Future<void> submitForm() async {
     if (state.status == FormzSubmissionStatus.inProgress) return;
     if (!state.isValid) return;

@@ -6,7 +6,7 @@ import '../../../domain/entities/todo.dart';
 import '../../../injection.dart';
 import '../../cubit/todo_list/todo_list_cubit.dart';
 import '../../cubit/todo_list/todo_list_state.dart';
-import '../widgets/todo_list_item.dart';
+import '../../widgets/todo_list_item.dart';
 
 class TodoListPage extends StatefulWidget {
   const TodoListPage({super.key});
@@ -43,59 +43,62 @@ class _TodoListPageState extends State<TodoListPage> with TickerProviderStateMix
     return BlocProvider(
       create: (context) => _todoListCubit,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Todo List'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () => context.push('/settings'),
-              tooltip: 'Settings',
-            ),
-          ],
-        ),
-        body: FadeTransition(
-          opacity: _fadeAnimation,
-          child: BlocBuilder<TodoListCubit, TodoListState>(
-            builder: (context, state) {
-              return state.when(
-                initial: () => const Center(child: Text('Ready to load todos')),
-                loading: () => const Center(child: CircularProgressIndicator()),
-                loaded: (todos) => RefreshIndicator(
-                  onRefresh: () async => context.read<TodoListCubit>().refresh(),
-                  child: todos.isEmpty ? noTodosYet() : listViewBuilder(todos),
-                ),
-                error: (message) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error, size: 64, color: Colors.red),
-                      const SizedBox(height: 16),
-                      Text(
-                        message,
-                        style: const TextStyle(color: Colors.red),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () => context.read<TodoListCubit>().refresh(),
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => context.push('/todo/create'),
-          child: const Icon(Icons.add),
-        ),
+        appBar: _buildAppBar(context),
+        body: FadeTransition(opacity: _fadeAnimation, child: _buildBody()),
+        floatingActionButton: _buildFloatingActionButton(context),
       ),
     );
   }
 
-  Widget listViewBuilder(List<Todo> todos) {
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      title: const Text('Todo List'),
+      actions: [
+        IconButton(icon: const Icon(Icons.settings), onPressed: () => context.push('/settings'), tooltip: 'Settings'),
+      ],
+    );
+  }
+
+  Widget _buildBody() {
+    return BlocBuilder<TodoListCubit, TodoListState>(
+      builder: (context, state) {
+        return state.when(
+          initial: () => const Center(child: Text('Ready to load todos')),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          loaded: (todos) => RefreshIndicator(
+            onRefresh: () async => context.read<TodoListCubit>().refresh(),
+            child: todos.isEmpty ? _buildEmptyState() : _buildTodosList(todos),
+          ),
+          error: (message) => _buildErrorState(context, message),
+        );
+      },
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error, size: 64, color: Colors.red),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: const TextStyle(color: Colors.red),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(onPressed: () => context.read<TodoListCubit>().refresh(), child: const Text('Retry')),
+        ],
+      ),
+    );
+  }
+
+  FloatingActionButton _buildFloatingActionButton(BuildContext context) {
+    return FloatingActionButton(onPressed: () => context.push('/todo/create'), child: const Icon(Icons.add));
+  }
+
+  Widget _buildTodosList(List<Todo> todos) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: todos.length,
@@ -109,7 +112,7 @@ class _TodoListPageState extends State<TodoListPage> with TickerProviderStateMix
     );
   }
 
-  Widget noTodosYet() {
+  Widget _buildEmptyState() {
     return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

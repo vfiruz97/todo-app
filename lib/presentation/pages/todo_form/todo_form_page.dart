@@ -61,75 +61,89 @@ class _TodoFormPageState extends State<TodoFormPage> with TickerProviderStateMix
         body: SlideTransition(
           position: _slideAnimation,
           child: BlocListener<TodoFormCubit, TodoFormState>(
-            listener: (context, state) {
-              if (state.status.isSuccess) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(widget.todo == null ? 'Todo created successfully!' : 'Todo updated successfully!'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-                getIt<TodoListCubit>().loadTodos();
-                context.pop();
-              } else if (state.status.isFailure) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.errorMessage ?? 'An error occurred'), backgroundColor: Colors.red),
-                );
-              }
-            },
+            listener: _formStateListener,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  BlocBuilder<TodoFormCubit, TodoFormState>(
-                    buildWhen: (previous, current) => previous.title != current.title,
-                    builder: (context, state) {
-                      return TextFormField(
-                        controller: _titleController,
-                        decoration: InputDecoration(
-                          labelText: 'Title',
-                          border: const OutlineInputBorder(),
-                          errorText: state.title.displayError?.name,
-                        ),
-                        onChanged: (value) => context.read<TodoFormCubit>().titleChanged(value),
-                      );
-                    },
-                  ),
+                  _buildTitleField(),
                   const SizedBox(height: 16),
-                  BlocBuilder<TodoFormCubit, TodoFormState>(
-                    buildWhen: (previous, current) => previous.description != current.description,
-                    builder: (context, state) {
-                      return TextFormField(
-                        controller: _descriptionController,
-                        decoration: InputDecoration(
-                          labelText: 'Description',
-                          border: const OutlineInputBorder(),
-                          errorText: state.description.displayError?.name,
-                        ),
-                        maxLines: 3,
-                        onChanged: (value) => context.read<TodoFormCubit>().descriptionChanged(value),
-                      );
-                    },
-                  ),
+                  _buildDescriptionField(),
                   const SizedBox(height: 24),
-                  BlocBuilder<TodoFormCubit, TodoFormState>(
-                    buildWhen: (previous, current) => previous.status != current.status,
-                    builder: (context, state) {
-                      return ElevatedButton(
-                        onPressed: state.status.isInProgress ? null : () => context.read<TodoFormCubit>().submitForm(),
-                        child: state.status.isInProgress
-                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                            : Text(widget.todo == null ? 'Create' : 'Update'),
-                      );
-                    },
-                  ),
+                  _buildSubmitButton(),
                 ],
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  void _formStateListener(BuildContext context, TodoFormState state) {
+    if (state.status.isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(widget.todo == null ? 'Todo created successfully!' : 'Todo updated successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      getIt<TodoListCubit>().loadTodos();
+      context.pop();
+    } else if (state.status.isFailure) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(state.errorMessage ?? 'An error occurred'), backgroundColor: Colors.red));
+    }
+  }
+
+  Widget _buildTitleField() {
+    return BlocBuilder<TodoFormCubit, TodoFormState>(
+      buildWhen: (previous, current) => previous.title != current.title,
+      builder: (context, state) {
+        return TextFormField(
+          controller: _titleController,
+          decoration: InputDecoration(
+            labelText: 'Title',
+            border: const OutlineInputBorder(),
+            errorText: state.title.displayError?.name,
+          ),
+          onChanged: (value) => context.read<TodoFormCubit>().titleChanged(value),
+        );
+      },
+    );
+  }
+
+  Widget _buildDescriptionField() {
+    return BlocBuilder<TodoFormCubit, TodoFormState>(
+      buildWhen: (previous, current) => previous.description != current.description,
+      builder: (context, state) {
+        return TextFormField(
+          controller: _descriptionController,
+          decoration: InputDecoration(
+            labelText: 'Description',
+            border: const OutlineInputBorder(),
+            errorText: state.description.displayError?.name,
+          ),
+          maxLines: 3,
+          onChanged: (value) => context.read<TodoFormCubit>().descriptionChanged(value),
+        );
+      },
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return BlocBuilder<TodoFormCubit, TodoFormState>(
+      buildWhen: (previous, current) => previous.status != current.status,
+      builder: (context, state) {
+        return ElevatedButton(
+          onPressed: state.status.isInProgress ? null : () => context.read<TodoFormCubit>().submitForm(),
+          child: state.status.isInProgress
+              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+              : Text(widget.todo == null ? 'Create' : 'Update'),
+        );
+      },
     );
   }
 }

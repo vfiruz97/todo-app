@@ -15,6 +15,7 @@ class TodoListCubit extends Cubit<TodoListState> {
   final TodoService _todoService;
   StreamSubscription<bool>? _connectivitySubscription;
 
+  /// Initializes a listener for connectivity changes
   void _initConnectivityListener() {
     _connectivitySubscription = _todoService.onConnectivityChanged.listen((isConnected) {
       if (isConnected && state is TodoListError) {
@@ -23,8 +24,10 @@ class TodoListCubit extends Cubit<TodoListState> {
     });
   }
 
+  /// Refreshes the todo list
   void refresh() => loadTodos();
 
+  /// Loads all todos from the service
   Future<void> loadTodos() async {
     if (state is TodoListLoading) return;
     emit(const TodoListState.loading());
@@ -37,6 +40,7 @@ class TodoListCubit extends Cubit<TodoListState> {
     );
   }
 
+  /// Deletes a todo by its ID
   Future<void> delete(int id) async {
     if (state is TodoListLoading) return;
     emit(const TodoListState.loading());
@@ -49,8 +53,10 @@ class TodoListCubit extends Cubit<TodoListState> {
     });
   }
 
+  /// Returns whether the network is available
   Future<bool> get isNetworkAvailable => _todoService.isNetworkAvailable;
 
+  /// Syncs todos when a network connection is available
   Future<void> syncWhenConnected() async {
     if (await _todoService.isNetworkAvailable) {
       await loadTodos();
@@ -58,8 +64,8 @@ class TodoListCubit extends Cubit<TodoListState> {
   }
 
   @override
-  Future<void> close() {
-    _connectivitySubscription?.cancel();
+  Future<void> close() async {
+    await _connectivitySubscription?.cancel();
     return super.close();
   }
 }

@@ -10,15 +10,19 @@ void main() async {
   await runZonedGuarded<Future<void>>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+
+      // Configure dependency injection
       await configureDependencies();
+
       runApp(const TodoApp());
     },
     (error, stackTrace) {
+      // Log errors to console
       debugPrint('App error: $error');
       debugPrint('Stack trace: $stackTrace');
 
       if (kReleaseMode) {
-        // TODO: Send to crash reporting service
+        // In a production use Firebase Crashlytics, Sentry, etc.
       }
     },
   );
