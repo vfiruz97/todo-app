@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../../domain/entities/todo.dart';
 import '../pages/settings/settings_page.dart';
 import '../pages/todo_detail/todo_detail_page.dart';
 import '../pages/todo_form/todo_form_page.dart';
@@ -20,7 +21,7 @@ class AppRouter {
       GoRoute(
         path: '/todo/edit/:id',
         builder: (context, state) {
-          return const TodoFormPage();
+          return TodoFormPage(todo: state.extra as Todo?);
         },
       ),
       GoRoute(path: '/settings', builder: (context, state) => const SettingsPage()),

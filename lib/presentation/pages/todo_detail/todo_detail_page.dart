@@ -41,7 +41,10 @@ class TodoDetailPage extends StatelessWidget {
               title: const Text('Todo Details'),
               actions: [
                 if (state.todo != null && state.status == FormzSubmissionStatus.success)
-                  IconButton(icon: const Icon(Icons.edit), onPressed: () => context.push('/todo/edit/$todoId')),
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () => context.push('/todo/edit/$todoId', extra: state.todo),
+                  ),
               ],
             ),
             body: _buildBody(context, state),
