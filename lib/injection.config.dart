@@ -72,7 +72,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i192.TodoListCubit>(
       () => _i192.TodoListCubit(gh<_i314.TodoService>()),
     );
-    gh.singleton<_i35.TodoFormCubit>(
+    gh.factory<_i35.TodoFormCubit>(
       () => _i35.TodoFormCubit(gh<_i314.TodoService>()),
     );
     return this;

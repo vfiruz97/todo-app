@@ -7,7 +7,7 @@ import '../../../domain/entities/todo.dart';
 import '../../validators/todo_validators.dart';
 import 'todo_form_state.dart';
 
-@singleton
+@injectable
 class TodoFormCubit extends Cubit<TodoFormState> {
   TodoFormCubit(this._todoService) : super(const TodoFormState());
 
@@ -35,6 +35,21 @@ class TodoFormCubit extends Cubit<TodoFormState> {
           ),
         );
       },
+    );
+  }
+
+  Future<void> toggleCompletion() async {
+    if (state.todo == null) return;
+
+    final updatedTodo = state.todo!.copyWith(isCompleted: !state.todo!.isCompleted);
+
+    emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
+
+    final result = await _todoService.update(updatedTodo);
+
+    result.fold(
+      (failure) => emit(state.copyWith(status: FormzSubmissionStatus.failure, errorMessage: failure.toString())),
+      (todo) => emit(state.copyWith(todo: todo, status: FormzSubmissionStatus.success)),
     );
   }
 
