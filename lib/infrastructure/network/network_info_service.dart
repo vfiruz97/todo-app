@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:injectable/injectable.dart';
 
-@injectable
+@singleton
 class NetworkInfoService {
   const NetworkInfoService(this._connectivity);
 

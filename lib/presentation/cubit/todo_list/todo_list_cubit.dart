@@ -1,16 +1,27 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../domain/usecases/delete_todo_usecase.dart';
-import '../../../domain/usecases/get_all_todos_usecase.dart';
+import '../../../application/services/todo_service.dart';
 import 'todo_list_state.dart';
 
 @singleton
 class TodoListCubit extends Cubit<TodoListState> {
-  TodoListCubit(this._getAllTodosUseCase, this._deleteTodoUseCase) : super(const TodoListState.initial());
+  TodoListCubit(this._todoService) : super(const TodoListState.initial()) {
+    _initConnectivityListener();
+  }
 
-  final GetAllTodosUseCase _getAllTodosUseCase;
-  final DeleteTodoUseCase _deleteTodoUseCase;
+  final TodoService _todoService;
+  StreamSubscription<bool>? _connectivitySubscription;
+
+  void _initConnectivityListener() {
+    _connectivitySubscription = _todoService.onConnectivityChanged.listen((isConnected) {
+      if (isConnected && state is TodoListError) {
+        loadTodos();
+      }
+    });
+  }
 
   void refresh() => loadTodos();
 
@@ -18,7 +29,7 @@ class TodoListCubit extends Cubit<TodoListState> {
     if (state is TodoListLoading) return;
     emit(const TodoListState.loading());
 
-    final result = await _getAllTodosUseCase();
+    final result = await _todoService.getAll();
 
     result.fold(
       (failure) => emit(TodoListState.error(failure.toString())),
@@ -30,11 +41,25 @@ class TodoListCubit extends Cubit<TodoListState> {
     if (state is TodoListLoading) return;
     emit(const TodoListState.loading());
 
-    final result = await _deleteTodoUseCase(id);
+    final result = await _todoService.delete(id);
 
     result.fold((failure) => emit(TodoListState.error(failure.toString())), (_) {
       emit(const TodoListState.initial());
       return loadTodos();
     });
+  }
+
+  Future<bool> get isNetworkAvailable => _todoService.isNetworkAvailable;
+
+  Future<void> syncWhenConnected() async {
+    if (await _todoService.isNetworkAvailable) {
+      await loadTodos();
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _connectivitySubscription?.cancel();
+    return super.close();
   }
 }

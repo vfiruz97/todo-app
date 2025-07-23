@@ -43,7 +43,16 @@ class _TodoListPageState extends State<TodoListPage> with TickerProviderStateMix
     return BlocProvider(
       create: (context) => _todoListCubit,
       child: Scaffold(
-        appBar: AppBar(title: const Text('Todo List')),
+        appBar: AppBar(
+          title: const Text('Todo List'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () => context.push('/settings'),
+              tooltip: 'Settings',
+            ),
+          ],
+        ),
         body: FadeTransition(
           opacity: _fadeAnimation,
           child: BlocBuilder<TodoListCubit, TodoListState>(

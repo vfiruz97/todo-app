@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'injection.dart';
@@ -13,8 +14,13 @@ void main() async {
 
       runApp(const TodoApp());
     },
-    (e, stack) => {
-      // Handle errors
+    (error, stackTrace) {
+      debugPrint('App error: $error');
+      debugPrint('Stack trace: $stackTrace');
+
+      if (kReleaseMode) {
+        // TODO: Send to crash reporting service
+      }
     },
   );
 }

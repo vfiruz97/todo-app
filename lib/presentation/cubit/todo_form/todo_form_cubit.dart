@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../application/services/todo_service.dart';
 import '../../../domain/entities/todo.dart';
 import '../../../domain/usecases/create_todo_usecase.dart';
 import '../../../domain/usecases/update_todo_usecase.dart';
@@ -10,10 +11,42 @@ import 'todo_form_state.dart';
 
 @singleton
 class TodoFormCubit extends Cubit<TodoFormState> {
-  TodoFormCubit(this._createTodoUseCase, this._updateTodoUseCase) : super(const TodoFormState());
+  TodoFormCubit(this._createTodoUseCase, this._updateTodoUseCase, this._todoService) : super(const TodoFormState());
 
   final CreateTodoUseCase _createTodoUseCase;
   final UpdateTodoUseCase _updateTodoUseCase;
+  final TodoService _todoService;
+
+  Future<void> loadTodo(int id) async {
+    emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
+
+    final result = await _todoService.getById(id);
+
+    result.fold(
+      (failure) => emit(state.copyWith(status: FormzSubmissionStatus.failure, errorMessage: failure.toString())),
+      (todo) {
+        final titleInput = TitleInput.dirty(todo.title);
+        final descriptionInput = DescriptionInput.dirty(todo.description);
+        final isValid = Formz.validate([titleInput, descriptionInput]);
+
+        emit(
+          state.copyWith(
+            todo: todo,
+            title: titleInput,
+            description: descriptionInput,
+            isValid: isValid,
+            status: FormzSubmissionStatus.success,
+          ),
+        );
+      },
+    );
+  }
+
+  void updateTodoInState(Todo updatedTodo) {
+    if (state.todo?.id == updatedTodo.id) {
+      emit(state.copyWith(todo: updatedTodo));
+    }
+  }
 
   void initializeForm(Todo? todo) {
     if (todo == null) return;
