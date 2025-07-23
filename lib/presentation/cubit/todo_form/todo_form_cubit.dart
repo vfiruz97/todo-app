@@ -5,15 +5,31 @@ import 'package:formz/formz.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../application/services/todo_service.dart';
+import '../../../domain/core/events/domain_event.dart';
+import '../../../domain/entities/events/todo_events.dart';
 import '../../../domain/entities/todo.dart';
+import '../../../infrastructure/core/event_bus.dart';
 import '../../validators/todo_validators.dart';
 import 'todo_form_state.dart';
 
 @injectable
 class TodoFormCubit extends Cubit<TodoFormState> {
-  TodoFormCubit(this._todoService) : super(const TodoFormState());
+  TodoFormCubit(this._todoService, this._eventBus) : super(const TodoFormState()) {
+    handleTodoUpdate();
+  }
 
   final TodoService _todoService;
+  final EventBus _eventBus;
+  StreamSubscription<DomainEvent>? _eventSubscription;
+
+  void handleTodoUpdate() {
+    _eventSubscription = _eventBus.events.listen((event) {
+      if (event is! TodoUpdatedEvent) return;
+      final updatedTodo = event.todo;
+      if (state.todo?.id != updatedTodo.id) return;
+      initializeForm(updatedTodo);
+    });
+  }
 
   /// Loads a todo by its ID and updates the form state
   Future<void> loadTodo(int id) async {
@@ -104,5 +120,11 @@ class TodoFormCubit extends Cubit<TodoFormState> {
       (failure) => emit(state.copyWith(status: FormzSubmissionStatus.failure, errorMessage: failure.toString())),
       (_) => emit(state.copyWith(status: FormzSubmissionStatus.success)),
     );
+  }
+
+  @override
+  Future<void> close() {
+    _eventSubscription?.cancel();
+    return super.close();
   }
 }

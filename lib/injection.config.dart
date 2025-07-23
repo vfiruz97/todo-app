@@ -76,7 +76,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i192.TodoListCubit(gh<_i314.TodoService>(), gh<_i363.EventBus>()),
     );
     gh.factory<_i35.TodoFormCubit>(
-      () => _i35.TodoFormCubit(gh<_i314.TodoService>()),
+      () => _i35.TodoFormCubit(gh<_i314.TodoService>(), gh<_i363.EventBus>()),
     );
     return this;
   }

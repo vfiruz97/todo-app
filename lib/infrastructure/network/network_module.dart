@@ -29,8 +29,7 @@ class DioFactory {
   late String _lastBaseUrl;
 
   Dio get dio {
-    _dio = _createDio(_lastBaseUrl);
-    print('Created Dio instance with hash: ${dio.hashCode}');
+    _dio ??= _createDio(_lastBaseUrl);
     return _dio!;
   }
 
@@ -46,7 +45,6 @@ class DioFactory {
     dio.options.connectTimeout = const Duration(milliseconds: 30000);
     dio.options.receiveTimeout = const Duration(milliseconds: 30000);
     dio.options.sendTimeout = const Duration(milliseconds: 30000);
-
     dio.options.headers['Content-Type'] = 'application/x-protobuf';
     dio.options.responseType = ResponseType.bytes;
 
@@ -54,7 +52,6 @@ class DioFactory {
     dio.interceptors.add(
       RetryInterceptor(dio: dio, retries: int.parse(_dotenv.env['RETRY_ATTEMPTS'] ?? '3'), logPrint: print),
     );
-
     dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true, logPrint: print));
 
     return dio;

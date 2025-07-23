@@ -60,6 +60,7 @@ class _TodoFormPageState extends State<TodoFormPage> with TickerProviderStateMix
         body: SlideTransition(
           position: _slideAnimation,
           child: BlocListener<TodoFormCubit, TodoFormState>(
+            listenWhen: (pre, cur) => pre.status != cur.status || pre.errorMessage != cur.errorMessage,
             listener: _formStateListener,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
