@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../application/services/settings_service.dart';
-import '../../../injection.dart';
 import '../../cubit/settings/settings_cubit.dart';
 import '../../cubit/settings/settings_state.dart';
 
@@ -14,37 +12,36 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  late final TextEditingController _serverUrlController;
+  late final TextEditingController _baseUrlController;
 
   @override
   void initState() {
     super.initState();
-    _serverUrlController = TextEditingController();
+    _baseUrlController = TextEditingController(text: context.read<SettingsCubit>().state.baseUrl);
   }
 
   @override
   void dispose() {
-    _serverUrlController.dispose();
+    _baseUrlController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SettingsCubit(getIt<SettingsService>()),
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Settings')),
-        body: BlocConsumer<SettingsCubit, SettingsState>(
-          listener: (context, state) {
-            if (_serverUrlController.text != state.serverUrl) {
-              _serverUrlController.text = state.serverUrl;
-            }
-          },
-          builder: (context, state) {
-            return ListView(
-              padding: const EdgeInsets.all(16),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: BlocConsumer<SettingsCubit, SettingsState>(
+        listener: (context, state) {
+          if (_baseUrlController.text != state.baseUrl) {
+            _baseUrlController.text = state.baseUrl;
+          }
+        },
+        builder: (context, state) {
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Server Configuration Section
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -54,115 +51,53 @@ class _SettingsPageState extends State<SettingsPage> {
                         Text('Server Configuration', style: Theme.of(context).textTheme.titleLarge),
                         const SizedBox(height: 16),
                         TextFormField(
-                          controller: _serverUrlController,
+                          controller: _baseUrlController,
                           decoration: const InputDecoration(
-                            labelText: 'Server URL',
-                            hintText: 'http://localhost:8080',
+                            labelText: 'Base URL',
                             prefixIcon: Icon(Icons.link),
                             border: OutlineInputBorder(),
                           ),
-                          onChanged: (value) => context.read<SettingsCubit>().updateServerUrl(value),
+                          onChanged: (value) => context.read<SettingsCubit>().updateBaseUrl(value),
                         ),
                         const SizedBox(height: 16),
                         Row(
                           children: [
-                            ElevatedButton.icon(
-                              onPressed: state.hasUnsavedChanges
-                                  ? () => context.read<SettingsCubit>().saveSettings()
-                                  : null,
-                              icon: const Icon(Icons.save),
-                              label: const Text('Save'),
-                            ),
-                            const SizedBox(width: 8),
-                            TextButton.icon(
+                            ElevatedButton(
                               onPressed: () => context.read<SettingsCubit>().resetToDefault(),
-                              icon: const Icon(Icons.restore),
-                              label: const Text('Reset to Default'),
+                              child: const Text('Reset to Default'),
                             ),
                           ],
                         ),
-                        if (state.hasUnsavedChanges)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
+                      ],
+                    ),
+                  ),
+                ),
+                if (state.errorMessage != null) ...[
+                  const SizedBox(height: 16),
+                  Card(
+                    color: Theme.of(context).colorScheme.errorContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Icon(Icons.error, color: Theme.of(context).colorScheme.error),
+                          const SizedBox(width: 8),
+                          Expanded(
                             child: Text(
-                              'You have unsaved changes',
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.primary),
+                              state.errorMessage!,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
                             ),
                           ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Connection Status Section
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Connection Status', style: Theme.of(context).textTheme.titleLarge),
-                        const SizedBox(height: 16),
-                        _buildConnectionStatus(context, state),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () => context.read<SettingsCubit>().testConnection(),
-                          icon: const Icon(Icons.wifi_find),
-                          label: const Text('Test Connection'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                ],
               ],
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
-    );
-  }
-
-  Widget _buildConnectionStatus(BuildContext context, SettingsState state) {
-    Color statusColor;
-    IconData statusIcon;
-    String statusText;
-
-    switch (state.connectionStatus) {
-      case ConnectionStatus.connected:
-        statusColor = Theme.of(context).colorScheme.primary;
-        statusIcon = Icons.wifi;
-        statusText = 'Connected';
-        break;
-      case ConnectionStatus.disconnected:
-        statusColor = Theme.of(context).colorScheme.error;
-        statusIcon = Icons.wifi_off;
-        statusText = 'Disconnected';
-        break;
-      case ConnectionStatus.testing:
-        statusColor = Theme.of(context).colorScheme.outline;
-        statusIcon = Icons.hourglass_empty;
-        statusText = 'Testing...';
-        break;
-      case ConnectionStatus.unknown:
-        statusColor = Theme.of(context).colorScheme.outline;
-        statusIcon = Icons.help_outline;
-        statusText = 'Unknown';
-        break;
-    }
-
-    return Row(
-      children: [
-        Icon(statusIcon, color: statusColor, size: 24),
-        const SizedBox(width: 12),
-        Text(
-          statusText,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: statusColor, fontWeight: FontWeight.w500),
-        ),
-      ],
     );
   }
 }

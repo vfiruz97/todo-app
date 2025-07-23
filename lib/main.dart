@@ -11,7 +11,6 @@ void main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
       await configureDependencies();
-
       runApp(const TodoApp());
     },
     (error, stackTrace) {

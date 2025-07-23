@@ -1,73 +1,32 @@
-import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../application/services/settings_service.dart';
-import '../../../infrastructure/network/network_info_service.dart';
-import '../../../injection.dart';
+import '../../../infrastructure/network/network_module.dart';
 import 'settings_state.dart';
 
-@injectable
+@singleton
 class SettingsCubit extends Cubit<SettingsState> {
-  SettingsCubit(this._settingsService) : super(const SettingsState()) {
-    _loadSettings();
+  SettingsCubit(this._dotenv, this._dioFactory) : super(const SettingsState()) {
+    _loadBaseUrl();
   }
 
-  final SettingsService _settingsService;
+  final DotEnv _dotenv;
+  final DioFactory _dioFactory;
 
-  void _loadSettings() {
-    final serverUrl = _settingsService.serverUrl;
-    emit(state.copyWith(serverUrl: serverUrl, savedServerUrl: serverUrl));
+  void _loadBaseUrl() {
+    final baseUrl = _dotenv.env['BASE_URL'] ?? 'http://localhost:8080/api/v1';
+    emit(state.copyWith(baseUrl: baseUrl));
   }
 
-  void updateServerUrl(String url) {
-    emit(state.copyWith(serverUrl: url));
+  void updateBaseUrl(String url) {
+    emit(state.copyWith(baseUrl: url));
+    _dioFactory.recreateDio(url);
   }
 
-  Future<void> saveSettings() async {
-    if (!state.hasUnsavedChanges) return;
-
-    emit(state.copyWith(isLoading: true));
-
-    try {
-      final success = await _settingsService.setServerUrl(state.serverUrl);
-      if (success) {
-        emit(state.copyWith(savedServerUrl: state.serverUrl, isLoading: false, errorMessage: null));
-      } else {
-        emit(state.copyWith(isLoading: false, errorMessage: 'Failed to save settings'));
-      }
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
-    }
-  }
-
-  Future<void> resetToDefault() async {
-    emit(state.copyWith(isLoading: true));
-
-    try {
-      await _settingsService.resetServerUrl();
-      final defaultUrl = _settingsService.serverUrl;
-      emit(state.copyWith(serverUrl: defaultUrl, savedServerUrl: defaultUrl, isLoading: false, errorMessage: null));
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
-    }
-  }
-
-  Future<void> testConnection() async {
-    emit(state.copyWith(connectionStatus: ConnectionStatus.testing));
-
-    try {
-      final networkInfo = getIt<NetworkInfoService>();
-      final isConnected = await networkInfo.isConnected;
-
-      if (isConnected) {
-        emit(state.copyWith(connectionStatus: ConnectionStatus.connected));
-      } else {
-        emit(state.copyWith(connectionStatus: ConnectionStatus.disconnected));
-      }
-    } catch (e) {
-      emit(state.copyWith(connectionStatus: ConnectionStatus.disconnected, errorMessage: e.toString()));
-    }
+  void resetToDefault() {
+    final defaultUrl = _dotenv.env['BASE_URL'] ?? 'http://localhost:8080/api/v1';
+    emit(state.copyWith(baseUrl: defaultUrl));
+    _dioFactory.recreateDio(defaultUrl);
   }
 }

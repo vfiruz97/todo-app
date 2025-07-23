@@ -14,15 +14,9 @@ import 'package:dio/dio.dart' as _i361;
 import 'package:flutter_dotenv/flutter_dotenv.dart' as _i170;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
-import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
-import 'application/services/settings_service.dart' as _i848;
 import 'application/services/todo_service.dart' as _i314;
 import 'domain/repositories/i_todo_repository.dart' as _i1072;
-import 'domain/usecases/create_todo_usecase.dart' as _i1064;
-import 'domain/usecases/delete_todo_usecase.dart' as _i796;
-import 'domain/usecases/get_all_todos_usecase.dart' as _i604;
-import 'domain/usecases/update_todo_usecase.dart' as _i550;
 import 'infrastructure/network/http_service.dart' as _i527;
 import 'infrastructure/network/network_info_service.dart' as _i212;
 import 'infrastructure/network/network_module.dart' as _i343;
@@ -40,24 +34,13 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
-    final settingsModule = _$SettingsModule();
     final connectivityModule = _$ConnectivityModule();
     final networkModule = _$NetworkModule();
     await gh.factoryAsync<_i170.DotEnv>(
       () => registerModule.dotEnv,
       preResolve: true,
     );
-    await gh.factoryAsync<_i460.SharedPreferences>(
-      () => settingsModule.prefs,
-      preResolve: true,
-    );
     gh.factory<_i895.Connectivity>(() => connectivityModule.connectivity());
-    gh.factory<_i848.SettingsService>(
-      () => _i848.SettingsService(gh<_i460.SharedPreferences>()),
-    );
-    gh.factory<_i970.SettingsCubit>(
-      () => _i970.SettingsCubit(gh<_i848.SettingsService>()),
-    );
     gh.singleton<_i212.NetworkInfoService>(
       () => _i212.NetworkInfoService(gh<_i895.Connectivity>()),
     );
@@ -65,16 +48,20 @@ extension GetItInjectableX on _i174.GetIt {
       () => networkModule.dioFactory(
         gh<_i170.DotEnv>(),
         gh<_i212.NetworkInfoService>(),
-        gh<_i848.SettingsService>(),
       ),
     );
+    gh.factory<_i527.HttpService>(
+      () => _i527.HttpService(gh<_i343.DioFactory>()),
+    );
     gh.factory<_i361.Dio>(() => networkModule.dio(gh<_i343.DioFactory>()));
-    gh.factory<_i527.HttpService>(() => _i527.HttpService(gh<_i361.Dio>()));
     gh.factory<_i1072.ITodoRepository>(
       () => _i655.TodoRepository(
         gh<_i527.HttpService>(),
         gh<_i212.NetworkInfoService>(),
       ),
+    );
+    gh.singleton<_i970.SettingsCubit>(
+      () => _i970.SettingsCubit(gh<_i170.DotEnv>(), gh<_i343.DioFactory>()),
     );
     gh.factory<_i314.TodoService>(
       () => _i314.TodoService(
@@ -82,35 +69,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i212.NetworkInfoService>(),
       ),
     );
-    gh.factory<_i796.DeleteTodoUseCase>(
-      () => _i796.DeleteTodoUseCase(gh<_i1072.ITodoRepository>()),
-    );
-    gh.factory<_i550.UpdateTodoUseCase>(
-      () => _i550.UpdateTodoUseCase(gh<_i1072.ITodoRepository>()),
-    );
-    gh.factory<_i604.GetAllTodosUseCase>(
-      () => _i604.GetAllTodosUseCase(gh<_i1072.ITodoRepository>()),
-    );
-    gh.factory<_i1064.CreateTodoUseCase>(
-      () => _i1064.CreateTodoUseCase(gh<_i1072.ITodoRepository>()),
-    );
-    gh.singleton<_i35.TodoFormCubit>(
-      () => _i35.TodoFormCubit(
-        gh<_i1064.CreateTodoUseCase>(),
-        gh<_i550.UpdateTodoUseCase>(),
-        gh<_i314.TodoService>(),
-      ),
-    );
     gh.singleton<_i192.TodoListCubit>(
       () => _i192.TodoListCubit(gh<_i314.TodoService>()),
+    );
+    gh.singleton<_i35.TodoFormCubit>(
+      () => _i35.TodoFormCubit(gh<_i314.TodoService>()),
     );
     return this;
   }
 }
 
 class _$RegisterModule extends _i464.RegisterModule {}
-
-class _$SettingsModule extends _i848.SettingsModule {}
 
 class _$ConnectivityModule extends _i212.ConnectivityModule {}
 

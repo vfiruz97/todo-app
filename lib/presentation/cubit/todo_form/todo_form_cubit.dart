@@ -4,17 +4,13 @@ import 'package:injectable/injectable.dart';
 
 import '../../../application/services/todo_service.dart';
 import '../../../domain/entities/todo.dart';
-import '../../../domain/usecases/create_todo_usecase.dart';
-import '../../../domain/usecases/update_todo_usecase.dart';
 import '../../validators/todo_validators.dart';
 import 'todo_form_state.dart';
 
 @singleton
 class TodoFormCubit extends Cubit<TodoFormState> {
-  TodoFormCubit(this._createTodoUseCase, this._updateTodoUseCase, this._todoService) : super(const TodoFormState());
+  TodoFormCubit(this._todoService) : super(const TodoFormState());
 
-  final CreateTodoUseCase _createTodoUseCase;
-  final UpdateTodoUseCase _updateTodoUseCase;
   final TodoService _todoService;
 
   Future<void> loadTodo(int id) async {
@@ -76,8 +72,8 @@ class TodoFormCubit extends Cubit<TodoFormState> {
     emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
 
     final result = state.todo == null
-        ? await _createTodoUseCase(state.title.value, state.description.value)
-        : await _updateTodoUseCase(
+        ? await _todoService.create(Todo.create(title: state.title.value, description: state.description.value))
+        : await _todoService.update(
             state.todo!.copyWith(title: state.title.value, description: state.description.value),
           );
 

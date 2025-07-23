@@ -17,9 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$SettingsState {
-  String get serverUrl => throw _privateConstructorUsedError;
-  String get savedServerUrl => throw _privateConstructorUsedError;
-  ConnectionStatus get connectionStatus => throw _privateConstructorUsedError;
+  String get baseUrl => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
@@ -37,13 +35,7 @@ abstract class $SettingsStateCopyWith<$Res> {
     $Res Function(SettingsState) then,
   ) = _$SettingsStateCopyWithImpl<$Res, SettingsState>;
   @useResult
-  $Res call({
-    String serverUrl,
-    String savedServerUrl,
-    ConnectionStatus connectionStatus,
-    bool isLoading,
-    String? errorMessage,
-  });
+  $Res call({String baseUrl, bool isLoading, String? errorMessage});
 }
 
 /// @nodoc
@@ -61,26 +53,16 @@ class _$SettingsStateCopyWithImpl<$Res, $Val extends SettingsState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? serverUrl = null,
-    Object? savedServerUrl = null,
-    Object? connectionStatus = null,
+    Object? baseUrl = null,
     Object? isLoading = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
       _value.copyWith(
-            serverUrl: null == serverUrl
-                ? _value.serverUrl
-                : serverUrl // ignore: cast_nullable_to_non_nullable
+            baseUrl: null == baseUrl
+                ? _value.baseUrl
+                : baseUrl // ignore: cast_nullable_to_non_nullable
                       as String,
-            savedServerUrl: null == savedServerUrl
-                ? _value.savedServerUrl
-                : savedServerUrl // ignore: cast_nullable_to_non_nullable
-                      as String,
-            connectionStatus: null == connectionStatus
-                ? _value.connectionStatus
-                : connectionStatus // ignore: cast_nullable_to_non_nullable
-                      as ConnectionStatus,
             isLoading: null == isLoading
                 ? _value.isLoading
                 : isLoading // ignore: cast_nullable_to_non_nullable
@@ -104,13 +86,7 @@ abstract class _$$SettingsStateImplCopyWith<$Res>
   ) = __$$SettingsStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String serverUrl,
-    String savedServerUrl,
-    ConnectionStatus connectionStatus,
-    bool isLoading,
-    String? errorMessage,
-  });
+  $Res call({String baseUrl, bool isLoading, String? errorMessage});
 }
 
 /// @nodoc
@@ -127,26 +103,16 @@ class __$$SettingsStateImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? serverUrl = null,
-    Object? savedServerUrl = null,
-    Object? connectionStatus = null,
+    Object? baseUrl = null,
     Object? isLoading = null,
     Object? errorMessage = freezed,
   }) {
     return _then(
       _$SettingsStateImpl(
-        serverUrl: null == serverUrl
-            ? _value.serverUrl
-            : serverUrl // ignore: cast_nullable_to_non_nullable
+        baseUrl: null == baseUrl
+            ? _value.baseUrl
+            : baseUrl // ignore: cast_nullable_to_non_nullable
                   as String,
-        savedServerUrl: null == savedServerUrl
-            ? _value.savedServerUrl
-            : savedServerUrl // ignore: cast_nullable_to_non_nullable
-                  as String,
-        connectionStatus: null == connectionStatus
-            ? _value.connectionStatus
-            : connectionStatus // ignore: cast_nullable_to_non_nullable
-                  as ConnectionStatus,
         isLoading: null == isLoading
             ? _value.isLoading
             : isLoading // ignore: cast_nullable_to_non_nullable
@@ -162,24 +128,16 @@ class __$$SettingsStateImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$SettingsStateImpl extends _SettingsState {
+class _$SettingsStateImpl implements _SettingsState {
   const _$SettingsStateImpl({
-    this.serverUrl = '',
-    this.savedServerUrl = '',
-    this.connectionStatus = ConnectionStatus.unknown,
+    this.baseUrl = '',
     this.isLoading = false,
     this.errorMessage,
-  }) : super._();
+  });
 
   @override
   @JsonKey()
-  final String serverUrl;
-  @override
-  @JsonKey()
-  final String savedServerUrl;
-  @override
-  @JsonKey()
-  final ConnectionStatus connectionStatus;
+  final String baseUrl;
   @override
   @JsonKey()
   final bool isLoading;
@@ -188,7 +146,7 @@ class _$SettingsStateImpl extends _SettingsState {
 
   @override
   String toString() {
-    return 'SettingsState(serverUrl: $serverUrl, savedServerUrl: $savedServerUrl, connectionStatus: $connectionStatus, isLoading: $isLoading, errorMessage: $errorMessage)';
+    return 'SettingsState(baseUrl: $baseUrl, isLoading: $isLoading, errorMessage: $errorMessage)';
   }
 
   @override
@@ -196,12 +154,7 @@ class _$SettingsStateImpl extends _SettingsState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$SettingsStateImpl &&
-            (identical(other.serverUrl, serverUrl) ||
-                other.serverUrl == serverUrl) &&
-            (identical(other.savedServerUrl, savedServerUrl) ||
-                other.savedServerUrl == savedServerUrl) &&
-            (identical(other.connectionStatus, connectionStatus) ||
-                other.connectionStatus == connectionStatus) &&
+            (identical(other.baseUrl, baseUrl) || other.baseUrl == baseUrl) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
             (identical(other.errorMessage, errorMessage) ||
@@ -209,14 +162,8 @@ class _$SettingsStateImpl extends _SettingsState {
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    serverUrl,
-    savedServerUrl,
-    connectionStatus,
-    isLoading,
-    errorMessage,
-  );
+  int get hashCode =>
+      Object.hash(runtimeType, baseUrl, isLoading, errorMessage);
 
   /// Create a copy of SettingsState
   /// with the given fields replaced by the non-null parameter values.
@@ -227,22 +174,15 @@ class _$SettingsStateImpl extends _SettingsState {
       __$$SettingsStateImplCopyWithImpl<_$SettingsStateImpl>(this, _$identity);
 }
 
-abstract class _SettingsState extends SettingsState {
+abstract class _SettingsState implements SettingsState {
   const factory _SettingsState({
-    final String serverUrl,
-    final String savedServerUrl,
-    final ConnectionStatus connectionStatus,
+    final String baseUrl,
     final bool isLoading,
     final String? errorMessage,
   }) = _$SettingsStateImpl;
-  const _SettingsState._() : super._();
 
   @override
-  String get serverUrl;
-  @override
-  String get savedServerUrl;
-  @override
-  ConnectionStatus get connectionStatus;
+  String get baseUrl;
   @override
   bool get isLoading;
   @override

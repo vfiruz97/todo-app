@@ -2,11 +2,15 @@ import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:todo_proto/todo_proto.dart' as proto;
 
+import 'network_module.dart';
+
 @injectable
 class HttpService {
-  HttpService(this._dio);
+  HttpService(this._dioFactory);
 
-  final Dio _dio;
+  final DioFactory _dioFactory;
+
+  Dio get _dio => _dioFactory.dio;
 
   Future<proto.ListTodosResponse> getAll() async {
     final response = await _dio.get('/tasks');
