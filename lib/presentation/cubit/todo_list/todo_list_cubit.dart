@@ -45,28 +45,22 @@ class TodoListCubit extends Cubit<TodoListState> {
   }
 
   void _handleTodoCreated(Todo todo) {
-    if (state is TodoListLoaded) {
-      final currentTodos = (state as TodoListLoaded).todos;
-      emit(TodoListState.loaded([...currentTodos, todo]));
-    }
+    final currentTodos = (state as TodoListLoaded).todos;
+    emit(TodoListState.loaded([todo, ...currentTodos]));
   }
 
   void _handleTodoUpdated(Todo updatedTodo) {
-    if (state is TodoListLoaded) {
-      final currentTodos = (state as TodoListLoaded).todos;
-      final updatedTodos = currentTodos.map((todo) {
-        return todo.id == updatedTodo.id ? updatedTodo : todo;
-      }).toList();
-      emit(TodoListState.loaded(updatedTodos));
-    }
+    final currentTodos = (state as TodoListLoaded).todos;
+    final updatedTodos = currentTodos.map((todo) {
+      return todo.id == updatedTodo.id ? updatedTodo : todo;
+    }).toList();
+    emit(TodoListState.loaded(updatedTodos));
   }
 
   void _handleTodoDeleted(int todoId) {
-    if (state is TodoListLoaded) {
-      final currentTodos = (state as TodoListLoaded).todos;
-      final updatedTodos = currentTodos.where((todo) => todo.id != todoId).toList();
-      emit(TodoListState.loaded(updatedTodos));
-    }
+    final currentTodos = (state as TodoListLoaded).todos;
+    final updatedTodos = currentTodos.where((todo) => todo.id != todoId).toList();
+    emit(TodoListState.loaded(updatedTodos));
   }
 
   /// Refreshes the todo list

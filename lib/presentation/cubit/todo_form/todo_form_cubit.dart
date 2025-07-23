@@ -72,11 +72,9 @@ class TodoFormCubit extends Cubit<TodoFormState> {
     );
   }
 
-  /// Updates the todo in the state if it matches the ID
   void updateTodoInState(Todo updatedTodo) {
-    if (state.todo?.id == updatedTodo.id) {
-      emit(state.copyWith(todo: updatedTodo));
-    }
+    if (state.todo?.id != updatedTodo.id) return;
+    emit(state.copyWith(todo: updatedTodo));
   }
 
   /// Initializes the form with an existing todo
