@@ -1,16 +1,21 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../domain/core/events/domain_event.dart';
+import '../../domain/entities/events/settings_event.dart';
+import '../core/event_bus.dart';
 import 'interceptors/interceptors.dart';
 import 'network_info_service.dart';
 
 @module
 abstract class NetworkModule {
   @singleton
-  DioFactory dioFactory(DotEnv dotenv, NetworkInfoService networkInfo) {
-    return DioFactory(dotenv, networkInfo);
+  DioFactory dioFactory(DotEnv dotenv, EventBus eventBus, NetworkInfoService networkInfo) {
+    return DioFactory(dotenv, eventBus, networkInfo);
   }
 
   @injectable
@@ -18,12 +23,14 @@ abstract class NetworkModule {
 }
 
 class DioFactory {
-  DioFactory(this._dotenv, this._networkInfo) {
+  DioFactory(this._dotenv, this._eventBus, this._networkInfo) {
     _lastBaseUrl = _dotenv.env['BASE_URL']!;
   }
 
   final DotEnv _dotenv;
   final NetworkInfoService _networkInfo;
+  final EventBus _eventBus;
+  StreamSubscription<DomainEvent>? _eventSubscription;
 
   Dio? _dio;
   late String _lastBaseUrl;
@@ -33,9 +40,12 @@ class DioFactory {
     return _dio!;
   }
 
-  void recreateDio(String newBaseUrl) {
-    _dio = _createDio(newBaseUrl);
-    _lastBaseUrl = newBaseUrl;
+  void handleBaseUrlChange() {
+    _eventSubscription = _eventBus.events.listen((event) {
+      if (event is SettingsUpdateEvent) {
+        _updateBaseUrl(event.settings.baseUrl);
+      }
+    });
   }
 
   Dio _createDio(String baseUrl) {
@@ -55,5 +65,16 @@ class DioFactory {
     dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true, logPrint: print));
 
     return dio;
+  }
+
+  void _updateBaseUrl(String baseUrl) {
+    _lastBaseUrl = baseUrl;
+    _dio = _createDio(_lastBaseUrl);
+  }
+
+  @disposeMethod
+  void close() {
+    _eventSubscription?.cancel();
+    _eventSubscription = null;
   }
 }

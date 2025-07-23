@@ -46,11 +46,16 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i212.NetworkInfoService>(
       () => _i212.NetworkInfoService(gh<_i895.Connectivity>()),
     );
+    gh.singleton<_i970.SettingsCubit>(
+      () => _i970.SettingsCubit(gh<_i170.DotEnv>(), gh<_i363.EventBus>()),
+    );
     gh.singleton<_i343.DioFactory>(
       () => networkModule.dioFactory(
         gh<_i170.DotEnv>(),
+        gh<_i363.EventBus>(),
         gh<_i212.NetworkInfoService>(),
       ),
+      dispose: (i) => i.close(),
     );
     gh.factory<_i527.HttpService>(
       () => _i527.HttpService(gh<_i343.DioFactory>()),
@@ -62,9 +67,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i212.NetworkInfoService>(),
         gh<_i363.EventBus>(),
       ),
-    );
-    gh.singleton<_i970.SettingsCubit>(
-      () => _i970.SettingsCubit(gh<_i170.DotEnv>(), gh<_i343.DioFactory>()),
     );
     gh.factory<_i314.TodoService>(
       () => _i314.TodoService(

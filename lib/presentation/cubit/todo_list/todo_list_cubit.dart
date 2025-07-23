@@ -57,9 +57,7 @@ class TodoListCubit extends Cubit<TodoListState> {
     emit(TodoListState.loaded(updatedTodos));
   }
 
-  void _handleTodoDeleted(int todoId) {
-    loadTodos();
-  }
+  void _handleTodoDeleted(_) => loadTodos();
 
   /// Refreshes the todo list
   void refresh() => loadTodos();
