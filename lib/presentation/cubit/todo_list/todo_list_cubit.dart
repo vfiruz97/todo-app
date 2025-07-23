@@ -4,16 +4,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../application/services/todo_service.dart';
+import '../../../domain/core/events/domain_event.dart';
+import '../../../domain/entities/events/todo_events.dart';
+import '../../../domain/entities/todo.dart';
+import '../../../infrastructure/core/event_bus.dart';
 import 'todo_list_state.dart';
 
 @singleton
 class TodoListCubit extends Cubit<TodoListState> {
-  TodoListCubit(this._todoService) : super(const TodoListState.initial()) {
+  TodoListCubit(this._todoService, this._eventBus) : super(const TodoListState.initial()) {
     _initConnectivityListener();
+    _initEventListener();
   }
 
   final TodoService _todoService;
+  final EventBus _eventBus;
   StreamSubscription<bool>? _connectivitySubscription;
+  StreamSubscription<DomainEvent>? _eventSubscription;
 
   /// Initializes a listener for connectivity changes
   void _initConnectivityListener() {
@@ -22,6 +29,44 @@ class TodoListCubit extends Cubit<TodoListState> {
         loadTodos();
       }
     });
+  }
+
+  /// Initializes a listener for domain events
+  void _initEventListener() {
+    _eventSubscription = _eventBus.events.listen((event) {
+      if (event is TodoCreatedEvent) {
+        _handleTodoCreated(event.todo);
+      } else if (event is TodoUpdatedEvent) {
+        _handleTodoUpdated(event.todo);
+      } else if (event is TodoDeletedEvent) {
+        _handleTodoDeleted(event.todoId);
+      }
+    });
+  }
+
+  void _handleTodoCreated(Todo todo) {
+    if (state is TodoListLoaded) {
+      final currentTodos = (state as TodoListLoaded).todos;
+      emit(TodoListState.loaded([...currentTodos, todo]));
+    }
+  }
+
+  void _handleTodoUpdated(Todo updatedTodo) {
+    if (state is TodoListLoaded) {
+      final currentTodos = (state as TodoListLoaded).todos;
+      final updatedTodos = currentTodos.map((todo) {
+        return todo.id == updatedTodo.id ? updatedTodo : todo;
+      }).toList();
+      emit(TodoListState.loaded(updatedTodos));
+    }
+  }
+
+  void _handleTodoDeleted(int todoId) {
+    if (state is TodoListLoaded) {
+      final currentTodos = (state as TodoListLoaded).todos;
+      final updatedTodos = currentTodos.where((todo) => todo.id != todoId).toList();
+      emit(TodoListState.loaded(updatedTodos));
+    }
   }
 
   /// Refreshes the todo list
@@ -66,6 +111,7 @@ class TodoListCubit extends Cubit<TodoListState> {
   @override
   Future<void> close() async {
     await _connectivitySubscription?.cancel();
+    await _eventSubscription?.cancel();
     return super.close();
   }
 }

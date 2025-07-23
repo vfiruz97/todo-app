@@ -17,6 +17,7 @@ import 'package:injectable/injectable.dart' as _i526;
 
 import 'application/services/todo_service.dart' as _i314;
 import 'domain/repositories/i_todo_repository.dart' as _i1072;
+import 'infrastructure/core/event_bus.dart' as _i363;
 import 'infrastructure/network/http_service.dart' as _i527;
 import 'infrastructure/network/network_info_service.dart' as _i212;
 import 'infrastructure/network/network_module.dart' as _i343;
@@ -41,6 +42,7 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.factory<_i895.Connectivity>(() => connectivityModule.connectivity());
+    gh.lazySingleton<_i363.EventBus>(() => _i363.EventBus());
     gh.singleton<_i212.NetworkInfoService>(
       () => _i212.NetworkInfoService(gh<_i895.Connectivity>()),
     );
@@ -58,6 +60,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i655.TodoRepository(
         gh<_i527.HttpService>(),
         gh<_i212.NetworkInfoService>(),
+        gh<_i363.EventBus>(),
       ),
     );
     gh.singleton<_i970.SettingsCubit>(
@@ -70,10 +73,10 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.singleton<_i192.TodoListCubit>(
-      () => _i192.TodoListCubit(gh<_i314.TodoService>()),
+      () => _i192.TodoListCubit(gh<_i314.TodoService>(), gh<_i363.EventBus>()),
     );
     gh.factory<_i35.TodoFormCubit>(
-      () => _i35.TodoFormCubit(gh<_i314.TodoService>()),
+      () => _i35.TodoFormCubit(gh<_i314.TodoService>(), gh<_i363.EventBus>()),
     );
     return this;
   }

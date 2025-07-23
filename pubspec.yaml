@@ -23,6 +23,7 @@ dependencies:
   flutter_dotenv: 5.2.1
   dartz: 0.10.1
   formz: 0.8.0
+  rxdart: 0.28.0
   todo_proto:
     path: ./todo_proto
 

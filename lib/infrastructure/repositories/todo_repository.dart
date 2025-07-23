@@ -3,19 +3,22 @@ import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:todo_proto/todo_proto.dart' as proto;
 
+import '../../domain/entities/events/todo_events.dart';
 import '../../domain/entities/failure.dart';
 import '../../domain/entities/todo.dart';
 import '../../domain/repositories/i_todo_repository.dart';
+import '../core/event_bus.dart';
 import '../mappers/todo_mapper.dart';
 import '../network/http_service.dart';
 import '../network/network_info_service.dart';
 
 @Injectable(as: ITodoRepository)
 class TodoRepository implements ITodoRepository {
-  const TodoRepository(this._httpService, this._networkInfoService);
+  const TodoRepository(this._httpService, this._networkInfoService, this._eventBus);
 
   final HttpService _httpService;
   final NetworkInfoService _networkInfoService;
+  final EventBus _eventBus;
 
   @override
   Future<Either<Failure, List<Todo>>> getAll() async {
@@ -62,7 +65,9 @@ class TodoRepository implements ITodoRepository {
         ..description = todo.description;
 
       final response = await _httpService.create(request);
-      return Right(response.toEntity());
+      final createdTodo = response.toEntity();
+      _eventBus.emit(TodoCreatedEvent(createdTodo));
+      return Right(createdTodo);
     } on DioException catch (e) {
       return Left(Failure.serverError(e.message ?? 'Unknown server error'));
     } catch (e) {
@@ -84,7 +89,9 @@ class TodoRepository implements ITodoRepository {
         ..isCompleted = todo.isCompleted;
 
       final response = await _httpService.update(request);
-      return Right(response.toEntity());
+      final updatedTodo = response.toEntity();
+      _eventBus.emit(TodoUpdatedEvent(updatedTodo));
+      return Right(updatedTodo);
     } on DioException catch (e) {
       return Left(Failure.serverError(e.message ?? 'Unknown server error'));
     } catch (e) {
@@ -100,6 +107,7 @@ class TodoRepository implements ITodoRepository {
 
     try {
       await _httpService.delete(id);
+      _eventBus.emit(TodoDeletedEvent(id));
       return const Right(unit);
     } on DioException catch (e) {
       return Left(Failure.serverError(e.message ?? 'Unknown server error'));

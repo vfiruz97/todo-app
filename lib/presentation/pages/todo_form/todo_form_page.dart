@@ -7,7 +7,6 @@ import '../../../domain/entities/todo.dart';
 import '../../../injection.dart';
 import '../../cubit/todo_form/todo_form_cubit.dart';
 import '../../cubit/todo_form/todo_form_state.dart';
-import '../../cubit/todo_list/todo_list_cubit.dart';
 
 class TodoFormPage extends StatefulWidget {
   final Todo? todo;
@@ -89,7 +88,6 @@ class _TodoFormPageState extends State<TodoFormPage> with TickerProviderStateMix
           backgroundColor: Colors.green,
         ),
       );
-      getIt<TodoListCubit>().loadTodos();
       context.pop();
     } else if (state.status.isFailure) {
       ScaffoldMessenger.of(
