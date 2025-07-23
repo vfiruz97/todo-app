@@ -25,6 +25,7 @@ abstract class NetworkModule {
 class DioFactory {
   DioFactory(this._dotenv, this._eventBus, this._networkInfo) {
     _lastBaseUrl = _dotenv.env['BASE_URL']!;
+    _handleBaseUrlChange();
   }
 
   final DotEnv _dotenv;
@@ -40,7 +41,7 @@ class DioFactory {
     return _dio!;
   }
 
-  void handleBaseUrlChange() {
+  void _handleBaseUrlChange() {
     _eventSubscription = _eventBus.events.listen((event) {
       if (event is SettingsUpdateEvent) {
         _updateBaseUrl(event.settings.baseUrl);
